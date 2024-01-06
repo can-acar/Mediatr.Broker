@@ -1,4 +1,4 @@
-using client.app;
+using client.master;
 using Mediatr.Broker;
 
 

@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IMediatorServer>(new MediatorServer(3333, "127.0.0.1", "MediatorServer"));
-builder.Services.RegisterHandlers<SampleHandler, SampleRequest>();
+
 
 var app = builder.Build();
 var broker = app.Services.GetRequiredService<IMediatorServer>();

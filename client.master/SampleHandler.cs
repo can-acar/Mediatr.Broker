@@ -1,6 +1,6 @@
 ﻿using Mediatr.Broker;
 
-namespace client.app;
+namespace client.master;
 
 public class SampleResponse
 {
