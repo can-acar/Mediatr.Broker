@@ -96,57 +96,57 @@ public class MediatorServer : IMediatorServer
 
                 var available = _socket.Available;
 
-                // if (_socket.Available > 0)
-                // {
-                Console.WriteLine("Mediator Broker is receiving...");
-
-                var size = await _socket.ReceiveAsync(data, cancellationToken);
-
-                // if (_socket.Connected == false)
-                // {
-                //     _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                //     _socket.Bind(_endPoint);
-                // }
-
-                if (_socket.Connected && _socket.Available > 0)
+                if (_socket.Available > 0)
                 {
-                    var payload = Encoding.UTF8.GetString(data, 0, size);
+                    Console.WriteLine("Mediator Broker is receiving...");
 
-                    var nodeHandlerType = JsonSerializer.Deserialize<NodeHandlerType>(payload);
+                    var size = await _socket.ReceiveAsync(data, cancellationToken);
 
-                    var nodeNotificationHandlerType = JsonSerializer.Deserialize<NodeNotificationHandlerType>(payload);
-
-                    if (nodeHandlerType != null)
-                    {
-                        // add the handler to the node queue
-                        _node.Name = nodeHandlerType.Name;
-
-                        if (!_node.handlers.ContainsKey(Type.GetType(nodeHandlerType.RequestType)))
-                        {
-                            _node.handlers.TryAdd(Type.GetType(nodeHandlerType.RequestType), (request, cancellationToken) =>
-                                ExecuteHandlerAsync(nodeHandlerType, request, cancellationToken));
-                        }
-
-                        //_nodes.TryAdd(node.Name, node);
-                        //_nodeQueue.Enqueue(node);
-                        _nodeQueue.Enqueue(_node.Name);
-                    }
-                    else if (nodeNotificationHandlerType != null)
-                    {
-                        // add the notification handler to the node queue
-
-                        _node.Name = nodeNotificationHandlerType.Name;
-
-                        if (!_node.notificationHandlers.ContainsKey(Type.GetType(nodeNotificationHandlerType.NotificationType)))
-                        {
-                            _node.notificationHandlers.TryAdd(Type.GetType(nodeNotificationHandlerType.NotificationType), (notification, cancellationToken) =>
-                                ExecuteNotificationHandlerAsync(nodeNotificationHandlerType, notification, cancellationToken));
-                        }
-
-                        // _nodes.TryAdd(node.Name, node);
-                        _nodeQueue.Enqueue(_node.Name);
-                    }
+                    // if (_socket.Connected == false)
+                    // {
+                    //     _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    //     _socket.Bind(_endPoint);
                     // }
+
+                    if (_socket.Connected && _socket.Available > 0)
+                    {
+                        var payload = Encoding.UTF8.GetString(data, 0, size);
+
+                        var nodeHandlerType = JsonSerializer.Deserialize<NodeHandlerType>(payload);
+
+                        var nodeNotificationHandlerType = JsonSerializer.Deserialize<NodeNotificationHandlerType>(payload);
+
+                        if (nodeHandlerType != null)
+                        {
+                            // add the handler to the node queue
+                            _node.Name = nodeHandlerType.Name;
+
+                            if (!_node.handlers.ContainsKey(Type.GetType(nodeHandlerType.RequestType)))
+                            {
+                                _node.handlers.TryAdd(Type.GetType(nodeHandlerType.RequestType), (request, cancellationToken) =>
+                                    ExecuteHandlerAsync(nodeHandlerType, request, cancellationToken));
+                            }
+
+                            //_nodes.TryAdd(node.Name, node);
+                            //_nodeQueue.Enqueue(node);
+                            _nodeQueue.Enqueue(_node.Name);
+                        }
+                        else if (nodeNotificationHandlerType != null)
+                        {
+                            // add the notification handler to the node queue
+
+                            _node.Name = nodeNotificationHandlerType.Name;
+
+                            if (!_node.notificationHandlers.ContainsKey(Type.GetType(nodeNotificationHandlerType.NotificationType)))
+                            {
+                                _node.notificationHandlers.TryAdd(Type.GetType(nodeNotificationHandlerType.NotificationType), (notification, cancellationToken) =>
+                                    ExecuteNotificationHandlerAsync(nodeNotificationHandlerType, notification, cancellationToken));
+                            }
+
+                            // _nodes.TryAdd(node.Name, node);
+                            _nodeQueue.Enqueue(_node.Name);
+                        }
+                    }
                 }
             }
         }

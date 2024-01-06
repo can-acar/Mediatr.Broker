@@ -7,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // add IHandler, IRequest, IRequest<,>  to the DI container
 builder.Services.AddSingleton<IMediator, Mediator>();
 
-builder.Services.AddSingleton<IMediatorClient>(new MediatorClient(3333, "127.0.0.1", "client"));
+builder.Services.AddSingleton<IMediatorClient>(new MediatorClient(3333, "127.0.0.1", "master"));
 
-builder.Services.RegisterHandler<SampleRequest,SampleHandler>();
+builder.Services.RegisterHandler<SampleRequest, SampleHandler>();
 
 // mediator.RegisterHandler<SampleHandler, SampleRequest>();
 

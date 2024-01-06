@@ -18,6 +18,7 @@ public class ReceiveMessage
 
 public class MediatorClient(int port, string host, string name) : IMediatorClient
 {
+    private readonly int _port = port;
     private readonly UdpClient _client = new();
     private ILogger<MediatorClient> _logger = new LoggerFactory().CreateLogger<MediatorClient>();
     private readonly CancellationTokenSource _cts = new();
@@ -30,7 +31,7 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
         // aggregate all registered handlers and notification handlers from the mediator and send them to the mediator broker
         // _client.Client.Bind(new IPEndPoint(IPAddress.Any, port));
 
-        await _client.Client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, port));
+        await _client.Client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, _port));
 
 
         // check if the client is connected to the server
@@ -93,27 +94,27 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
 
             // cast the data payload to a NodeHandlerType or NodeNotificationHandlerType
 
-            //
-            // if (data.Type == "Handler")
-            // {
-            //     var item = JsonSerializer.Deserialize<NodeHandlerType>(JsonSerializer.Serialize(data.Payload));
-            //     var requestType = Assembly.Load(item.RequestTypeAssemblyName).GetType(item.RequestType);
-            //     var responseType = Assembly.Load(item.ResponseTypeAssemblyName).GetType(item.ResponseType);
-            //
-            //     var handler = typeof(MediatorClient).GetMethod(nameof(HandleAsync))!.MakeGenericMethod(requestType, responseType);
-            //
-            //     await (Task) handler.Invoke(this, new object[] {data.Payload});
-            // }
-            // else if (data.Type == "NotificationHandler")
-            // {
-            //     var item = JsonSerializer.Deserialize<NodeNotificationHandlerType>(JsonSerializer.Serialize(data.Payload));
-            //
-            //     var notificationType = Assembly.Load(item.NotificationTypeAssemblyName).GetType(item.NotificationType);
-            //
-            //     var handler = typeof(MediatorClient).GetMethod(nameof(NotifyAsync))!.MakeGenericMethod(notificationType);
-            //
-            //     await (Task) handler.Invoke(this, new object[] {data.Payload});
-            // }
+
+            if (data.Type == "Handler")
+            {
+                var item = JsonSerializer.Deserialize<NodeHandlerType>(JsonSerializer.Serialize(data.Payload));
+                var requestType = Assembly.Load(item.RequestTypeAssemblyName).GetType(item.RequestType);
+                var responseType = Assembly.Load(item.ResponseTypeAssemblyName).GetType(item.ResponseType);
+
+                var handler = typeof(MediatorClient).GetMethod("Handler")!.MakeGenericMethod(requestType, responseType);
+
+                await (Task) handler.Invoke(this, new object[] {data.Payload});
+            }
+            else if (data.Type == "NotificationHandler")
+            {
+                var item = JsonSerializer.Deserialize<NodeNotificationHandlerType>(JsonSerializer.Serialize(data.Payload));
+
+                var notificationType = Assembly.Load(item.NotificationTypeAssemblyName).GetType(item.NotificationType);
+
+                var handler = typeof(MediatorClient).GetMethod("Notify")!.MakeGenericMethod(notificationType);
+
+                await (Task) handler.Invoke(this, new object[] {data.Payload});
+            }
 
 
             // deserialize the message into a payload
@@ -165,7 +166,7 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
             RequestTypeAssemblyName = requestTypeAssemblyName,
             ResponseTypeAssemblyName = responseTypeAssemblyName,
             Host = host,
-            Port = port,
+            Port = _port,
             ClientName = name,
             IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).First()
         };
@@ -174,7 +175,7 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
 
         var bytes = Encoding.UTF8.GetBytes(json);
 
-        await _client.SendAsync(bytes, bytes.Length, host, port);
+        await _client.SendAsync(bytes, bytes.Length, host, _port);
     }
 
 
@@ -195,7 +196,7 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
             NotificationType = notificationTypeName,
             NotificationTypeAssemblyName = notificationTypeAssemblyName,
             Host = host,
-            Port = port,
+            Port = _port,
             ClientName = name,
             IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).First()
         };
@@ -203,7 +204,7 @@ public class MediatorClient(int port, string host, string name) : IMediatorClien
         var json = JsonSerializer.Serialize(message);
         var bytes = Encoding.UTF8.GetBytes(json);
 
-        await _client.SendAsync(bytes, bytes.Length, host, port);
+        await _client.SendAsync(bytes, bytes.Length, host, _port);
     }
 }
 

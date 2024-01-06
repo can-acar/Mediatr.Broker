@@ -1,24 +1,25 @@
 ﻿using Mediatr.Broker;
 
-namespace client.slave;
-
-public class SampleResponse
+namespace client.slave
 {
-}
-
-public class SampleRequest : IRequest
-{
-}
-
-public class SampleHandler : Handler<SampleRequest>
-{
-    public Task<Guid> Handle(SampleRequest request, CancellationToken cancellationToken)
+    public class SampleResponse
     {
-        throw new NotImplementedException();
     }
 
-    protected override Guid Handle(SampleRequest request)
+    public class SampleRequest : IRequest
     {
-        throw new NotImplementedException();
+    }
+
+    public class SampleHandler : Handler<SampleRequest>
+    {
+        public Task<Guid> Handle(SampleRequest request, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Guid Handle(SampleRequest request)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
