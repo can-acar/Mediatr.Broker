@@ -1,0 +1,6 @@
+@Mediatr.Broker_HostAddress = http://localhost:5058
+
+GET {{Mediatr.Broker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
